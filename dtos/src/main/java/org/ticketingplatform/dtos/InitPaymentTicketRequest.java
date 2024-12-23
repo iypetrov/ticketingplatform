@@ -5,8 +5,8 @@ public record InitPaymentTicketRequest(
         String ticketId,
         Double price,
         String cardNumber,
-        String cardHolderName,
-        String cardExpirationDate,
+        Integer cardExpMonth,
+        Integer cardExpYear,
         String cardCvv
 ) {
 }

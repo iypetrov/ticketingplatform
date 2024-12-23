@@ -90,6 +90,7 @@ public class UserService {
                     createUserRequest.address(),
                     LocalDateTime.now()
             );
+            System.out.println("New user is added: " + createUserRequest.email());
             return new CreateUserResponse(
                     user.getId().toString(),
                     user.getName(),
