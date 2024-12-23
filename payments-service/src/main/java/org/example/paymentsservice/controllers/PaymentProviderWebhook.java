@@ -10,20 +10,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
-import org.ticketingplatform.dtos.InitPaymentTicketResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/webhook")
 public class PaymentProviderWebhook {
-    private final PaymentService paymentService;
     @Value("${stripe.webhook-secret}")
     private String webhookSecret;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    private final PaymentService paymentService;
 
     public PaymentProviderWebhook(KafkaTemplate<String, Object> kafkaTemplate, PaymentService paymentService) {
         this.kafkaTemplate = kafkaTemplate;

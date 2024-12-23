@@ -27,13 +27,10 @@ public class PaymentService {
     private final QueriesImpl queriesImpl;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private final PaymentService paymentService;
-
-    public PaymentService(DataSource dataSource, KafkaTemplate<String, Object> kafkaTemplate, PaymentService paymentService) throws SQLException {
+    public PaymentService(DataSource dataSource, KafkaTemplate<String, Object> kafkaTemplate) throws SQLException {
         Connection conn = dataSource.getConnection();
         this.queriesImpl = new QueriesImpl(conn);
         this.kafkaTemplate = kafkaTemplate;
-        this.paymentService = paymentService;
     }
 
     @KafkaListener(topics = "${app.kafka.payments-topic}", groupId = "default")
