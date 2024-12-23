@@ -20,9 +20,9 @@ spring:
       ddl-auto: none
 
   datasource:
-    url: jdbc:postgresql://localhost:5433/events
-    username: user
-    password: pass
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
 
   flyway:

@@ -18,11 +18,33 @@ spring:
       ddl-auto: none
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/users
-    username: user
-    password: pass
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASS}
     driver-class-name: org.postgresql.Driver
 
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: ${MAILGUN_USER}
+    password: ${MAILGUN_PASS}
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          from: no-reply@ticketingplatform.com
+    default-encoding: UTF-8
+    test-connection: false
+
+mail:
+  from:
+    name: TicketingPlatform
