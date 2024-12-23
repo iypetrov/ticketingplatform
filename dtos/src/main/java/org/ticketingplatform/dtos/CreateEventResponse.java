@@ -1,4 +1,4 @@
-package org.example.eventsservice.dtos;
+package org.ticketingplatform.dtos;
 
 public record CreateEventResponse(
         String id,

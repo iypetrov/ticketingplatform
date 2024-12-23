@@ -1,5 +1,7 @@
 **/target/**
 **/src/main/kotlin/com/eventsservice/repositories
+**/src/main/kotlin/com/usersservice/repositories
+**/src/main/kotlin/com/paymentsservice/repositories
 
 ### IntelliJ IDEA ###
 **/.idea/** 

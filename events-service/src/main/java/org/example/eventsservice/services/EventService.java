@@ -2,10 +2,11 @@ package org.example.eventsservice.services;
 
 import com.example.eventsservice.repositories.Event;
 import com.example.eventsservice.repositories.QueriesImpl;
-import org.example.eventsservice.dtos.CreateEventRequest;
-import org.example.eventsservice.dtos.CreateEventResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.ticketingplatform.dtos.CreateEventRequest;
+import org.ticketingplatform.dtos.CreateEventResponse;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,15 +14,23 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import java.util.List;
 
 @Service
 public class EventService {
-    private final QueriesImpl queriesImpl;
+    @Value("${app.kafka.events-topic}")
+    private String eventsTopic;
 
-    @Autowired
-    public EventService(DataSource dataSource) throws SQLException {
+    private final QueriesImpl queriesImpl;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    private final TicketService ticketService;
+
+    public EventService(DataSource dataSource, KafkaTemplate<String, Object> kafkaTemplate, TicketService ticketService) throws SQLException {
         Connection conn = dataSource.getConnection();
         this.queriesImpl = new QueriesImpl(conn);
+        this.kafkaTemplate = kafkaTemplate;
+        this.ticketService = ticketService;
     }
 
     public CreateEventResponse createEvent(CreateEventRequest createEventRequest) {
@@ -37,42 +46,11 @@ public class EventService {
                     LocalDateTime.now()
             );
 
-            for (int i = 0; i < createEventRequest.numberTicketsFirstClass(); i++) {
-                queriesImpl.createTicket(
-                        UUID.randomUUID(),
-                        null,
-                        event.getId(),
-                        null,
-                        createEventRequest.priceFirstClass(),
-                        TicketStatus.AVAILABLE.toString(),
-                        LocalDateTime.now()
+            ticketService.createEventTickets(event.getId(), createEventRequest.numberTicketsFirstClass(), createEventRequest.priceFirstClass());
+            ticketService.createEventTickets(event.getId(), createEventRequest.numberTicketsSecondClass(), createEventRequest.priceSecondClass());
+            ticketService.createEventTickets(event.getId(), createEventRequest.numberTicketsThirdClass(), createEventRequest.priceThirdClass());
 
-                );
-            }
-            for (int i = 0; i < createEventRequest.numberTicketsSecondClass(); i++) {
-                queriesImpl.createTicket(
-                        UUID.randomUUID(),
-                        null,
-                        event.getId(),
-                        null,
-                        createEventRequest.priceSecondClass(),
-                        TicketStatus.AVAILABLE.toString(),
-                        LocalDateTime.now()
-                );
-            }
-            for (int i = 0; i < createEventRequest.numberTicketsThirdClass(); i++) {
-                queriesImpl.createTicket(
-                        UUID.randomUUID(),
-                        null,
-                        event.getId(),
-                        null,
-                        createEventRequest.priceThirdClass(),
-                        TicketStatus.AVAILABLE.toString(),
-                        LocalDateTime.now()
-                );
-            }
-
-            return new CreateEventResponse(
+            var response = new CreateEventResponse(
                     event.getId().toString(),
                     event.getName(),
                     event.getDescription(),
@@ -81,16 +59,37 @@ public class EventService {
                     event.getEndTime().toString(),
                     event.getCreatedAt().toString()
             );
+            kafkaTemplate.send(eventsTopic, response);
+            return response;
         } catch (SQLException e) {
             return new CreateEventResponse(
-                   "00000000-0000-0000-0000-000000000000",
-                    "ERROR",
-                    "ERROR",
-                    "ERROR",
-                    "ERROR",
-                    "ERROR",
-                    "ERROR"
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
             );
+        }
+    }
+
+    public List<CreateEventResponse> getAllEvents() {
+        try {
+            return queriesImpl.getEvents()
+                    .stream()
+                    .map(event -> new CreateEventResponse(
+                                    event.getId().toString(),
+                                    event.getName(),
+                                    event.getDescription(),
+                                    event.getLocation(),
+                                    event.getStartTime().toString(),
+                                    event.getEndTime().toString(),
+                                    event.getCreatedAt().toString()
+                            )
+                    ).toList();
+        } catch (SQLException e) {
+            return List.of();
         }
     }
 }

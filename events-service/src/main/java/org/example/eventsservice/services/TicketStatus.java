@@ -1,7 +1,7 @@
 package org.example.eventsservice.services;
 
 public enum TicketStatus {
-    AVAILABLE("AVAILABLE"), SOLD("SOLD");
+    AVAILABLE("AVAILABLE"), RESERVED("RESERVED"), SOLD("SOLD");
 
     private final String status;
 
