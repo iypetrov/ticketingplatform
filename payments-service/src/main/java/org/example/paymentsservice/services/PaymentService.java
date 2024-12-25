@@ -1,5 +1,6 @@
 package org.example.paymentsservice.services;
 
+import com.example.paymentsservice.repositories.Payment;
 import com.example.paymentsservice.repositories.QueriesImpl;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -19,6 +20,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -94,5 +96,13 @@ public class PaymentService {
                 payment.getTicketId().toString(),
                 payment.getPrice()
         ));
+    }
+
+    public List<Payment> getAllPayments() {
+        try {
+            return queriesImpl.getPayments();
+        } catch (SQLException e) {
+           return List.of();
+        }
     }
 }

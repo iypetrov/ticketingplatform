@@ -1,5 +1,6 @@
 package org.example.paymentsservice.controllers;
 
+import com.example.paymentsservice.repositories.Payment;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
@@ -9,16 +10,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/payment")
-public class PaymentProviderWebhook {
+public class PaymentController {
     @Value("${stripe.webhook-secret}")
     private String webhookSecret;
 
     private final PaymentService paymentService;
 
-    public PaymentProviderWebhook(PaymentService paymentService) {
+    public PaymentController(PaymentService paymentService) {
         this.paymentService = paymentService;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<Payment>> test() {
+        return ResponseEntity.ok(paymentService.getAllPayments());
     }
 
     @PostMapping("/webhook")
