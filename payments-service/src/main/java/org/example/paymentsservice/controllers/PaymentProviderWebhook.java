@@ -9,9 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/payment")
 public class PaymentProviderWebhook {
@@ -25,7 +22,7 @@ public class PaymentProviderWebhook {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload, HttpServletRequest request) throws IOException {
+    public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload, HttpServletRequest request) {
         String sigHeader = request.getHeader("Stripe-Signature");
         try {
             Event event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
