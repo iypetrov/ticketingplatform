@@ -1,6 +1,7 @@
 package org.example.paymentsservice.services;
 
 import com.example.paymentsservice.repositories.QueriesImpl;
+import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentMethod;
@@ -21,6 +22,8 @@ import java.util.UUID;
 
 @Service
 public class PaymentService {
+    @Value("${stripe.secret-key}")
+    private String stripeSecretKey;
     @Value("${app.kafka.payments-callback-topic}")
     private String paymentsCallbackTopic;
 
@@ -37,6 +40,7 @@ public class PaymentService {
     public void listenFinalizePayment(InitPaymentTicketRequest initPaymentTicketRequest) {
         System.out.println("Received message: " + initPaymentTicketRequest);
         try {
+            Stripe.apiKey = stripeSecretKey;
             PaymentMethodCreateParams paymentMethodParams = PaymentMethodCreateParams.builder()
                     .setType(PaymentMethodCreateParams.Type.CARD)
                     .setCard(PaymentMethodCreateParams.CardDetails.builder()
@@ -54,6 +58,12 @@ public class PaymentService {
                     .setCurrency("usd")
                     .setPaymentMethod(paymentMethod.getId())
                     .setConfirm(true)
+                    .setAutomaticPaymentMethods(
+                            PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                                    .setEnabled(true)
+                                    .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
+                                    .build()
+                    )
                     .build();
 
             PaymentIntent intent = PaymentIntent.create(paymentIntentParams);

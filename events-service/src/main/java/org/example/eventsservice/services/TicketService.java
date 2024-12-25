@@ -99,8 +99,8 @@ public class TicketService {
                 buyTicketRequest.ticketId(),
                 ticket.getPrice(),
                 buyTicketRequest.cardNumber(),
-                buyTicketRequest.cardHolderName(),
-                buyTicketRequest.cardExpirationDate(),
+                buyTicketRequest.cardExpMonth(),
+                buyTicketRequest.cardExpYear(),
                 buyTicketRequest.cardCvv()
             ));
 
